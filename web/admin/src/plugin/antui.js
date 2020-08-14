@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { Message, Button, FormModel, Input, Icon, message } from 'ant-design-vue'
+import { Layout, Message, Button, FormModel, Input, Icon, message } from 'ant-design-vue'
 
 message.config({
   top: '60px',
@@ -7,6 +7,7 @@ message.config({
   macCount: 3
 })
 
+Vue.use(Layout)
 Vue.use(Button)
 Vue.use(FormModel)
 Vue.use(Input)

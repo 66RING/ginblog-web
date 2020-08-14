@@ -1,5 +1,5 @@
 # Bring up
 
-- yarn
-- yarn serve
+- `yarn`
+- `yarn serve`
 
