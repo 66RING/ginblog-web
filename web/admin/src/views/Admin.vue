@@ -1,14 +1,9 @@
 <template>
   <a-layout class='container'>
-    <a-layout-sider>
-      <div class="log">
-        <span>My Blog</span>
-      </div>
-      <Nav></Nav>
-    </a-layout-sider>
+    <Nav></Nav>
     <a-layout>
       <a-layout-header class="header-btn">
-        <a-button type="danger" @click="loginOut">退出</a-button>
+        <Header></Header>
       </a-layout-header>
       <a-layout-content>
         <router-view></router-view>
@@ -23,14 +18,9 @@
 <script>
 import Nav from '../components/admin/Nav'
 import Footer from '../components/admin/Footer'
+import Header from '../components/admin/Header'
 export default {
-  components: {Nav, Footer},
-  methods: {
-    loginOut() {
-      window.sessionStorage.clear('token')
-      this.$router.push('/login')
-    }
-  }
+  components: {Nav, Footer, Header}
 }
 </script>
 
@@ -46,13 +36,4 @@ export default {
   align-items: center;
 }
 
-.log {
-  height: 32px;
-  margin: 16px;
-  background: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 17px;
-}
 </style>
