@@ -12,6 +12,7 @@ import {
   Row,
   Col,
   ConfigProvider,
+  Modal,
   Menu
 } from 'ant-design-vue'
 
@@ -22,6 +23,7 @@ message.config({
 })
 
 Vue.use(Menu)
+Vue.use(Modal)
 Vue.use(ConfigProvider)
 Vue.use(Card)
 Vue.use(Table)
@@ -33,4 +35,5 @@ Vue.use(FormModel)
 Vue.use(Input)
 Vue.use(Icon)
 
+Vue.prototype.$confirm = Modal.confirm
 Vue.prototype.$message = Message
