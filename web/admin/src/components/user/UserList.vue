@@ -13,7 +13,7 @@
           />
         </a-col>
         <a-col :span="4">
-          <a-button type="primary">New</a-button>
+          <a-button type="primary" @click="addUserVisible = true" @ok="addUserOk" @cancel="addUserCancel">New User</a-button>
         </a-col>
       </a-row>
 
@@ -28,12 +28,64 @@
           <span slot='role' slot-scope="role">{{role == 1?'管理员':'订阅者'}}</span>
           <template slot="action" slot-scope="data">
             <div class="actionSlot">
-              <a-button type="primary" style="margin-right:15px;">Edit</a-button>
+              <a-button type="primary" style="margin-right:15px" @click="editUser(data.ID)">Edit</a-button>
               <a-button type="danger" @click="deleteUser(data.ID)">Delete</a-button>
             </div>
           </template>
         </a-table>
     </a-card>
+
+    <!-- New User -->
+    <a-modal
+      title="New User"
+      :visible="addUserVisible"
+      @ok="addUserOk"
+      width="60%"
+      @cancel="addUserCancel"
+      closable
+      destroyOnClose
+    >
+      <a-form-model :model="userInfo" :rules="userRules" ref="addUserRef">
+        <a-form-model-item label="User Name" prop="username">
+          <a-input v-model="userInfo.username"></a-input>
+        </a-form-model-item>
+        <a-form-model-item has-feedback label="Password" prop="password">
+          <a-input-password v-model="userInfo.password"></a-input-password>
+        </a-form-model-item>
+        <a-form-model-item has-feedback label="Confirm Password" prop="checkpass">
+          <a-input-password v-model="userInfo.checkpass"></a-input-password>
+        </a-form-model-item>
+        <a-form-model-item label="Is Administor?" prop="role">
+          <a-select defaultValue="2" style="120px" @change="adminChange">
+            <a-select-option key="1" value="1">Yes</a-select-option>
+            <a-select-option key="2" value="2">No</a-select-option>
+          </a-select>
+        </a-form-model-item>
+      </a-form-model>
+    </a-modal>
+
+    <!--Edit User-->
+    <a-modal
+      title="Edit User"
+      :visible="editUserVisible"
+      closable
+      width="60%"
+      @ok="editUserOk"
+      @cancel="editUserCancel"
+    >
+      <a-form-model :model="userInfo" :rules="userRules" ref="addUserRef">
+        <a-form-model-item label="User Name" prop="username">
+          <a-input v-model="userInfo.username"></a-input>
+        </a-form-model-item>
+        <a-form-model-item label="Is Administor?" prop="role">
+          <a-select defaultValue="2" style="120px" @change="adminChange">
+            <a-select-option key="1" value="1">Yes</a-select-option>
+            <a-select-option key="2" value="2">No</a-select-option>
+          </a-select>
+        </a-form-model-item>
+      </a-form-model>
+    </a-modal>
+
   </div>
 </template>
 
@@ -89,7 +141,44 @@ export default{
         pagesize: 5,
         pagenum: 1,
       },
+      userInfo: {
+        id: 0,
+        username: "",
+        password: "",
+        checkpass: "",
+        role: 2
+      },
       visible: false,
+      addUserVisible: false,
+      userRules: {
+        username: [
+          {required:true, message: "Please input username", trigger: "blur"},
+          {min:4, max: 12, message: "UserName should between 4 and 12"},
+        ],
+        password: [{validator:(rule, value, callback)=>{
+          if (this.userInfo.password == ""){
+            callback(new Error("Password can't be empty"))
+          }
+          if([...this.userInfo.password].length < 6 || [...this.userInfo.password].length > 20){
+            callback(new Error("Password must be between 6 and 20"))
+          }else{
+            callback()
+          }
+        },trigger: "blur"}],
+        checkpass: [{ validator: (rule, value, callback) => {
+          if (this.userInfo.checkpass == ""){
+            callback(new Error("Password can't be empty"))
+          }
+          if(this.userInfo.password != this.userInfo.checkpass){
+            callback(new Error("Inconsistent password"))
+          }else{
+            callback()
+          }
+        },trigger: "blur"}]
+      },
+
+      // Edit User
+      editUserVisible: false,
     }
 
   },
@@ -125,6 +214,8 @@ export default{
       this.pagination = pager
       this.getUserList()
     },
+
+    // Delete User
     async deleteUser(id){
       this.$confirm({
         title: 'Do you want to delete this user?',
@@ -137,6 +228,58 @@ export default{
         },
         onCancel() {},
       });
+    },
+
+    // Add User
+    addUserCancel(){
+      this.$refs.addUserRef.resetFields()
+      this.addUserVisible = false
+      this.$message.info("Add Cancel")
+    },
+    addUserOk(){
+      this.$refs.addUserRef.validate(async (valid) => {
+        if(!valid) return this.$message.error("Invalid")
+        const {data: res} = await this.$http.post("user/add", {
+          username: this.userInfo.username,
+          password: this.userInfo.password,
+          role: this.userInfo.role
+        })
+        if (res.status !=200) return this.$message.error(res.message)
+        this.addUserVisible = false
+        this.$message.success("Add User Success")
+        this.getUserList()
+      })
+    },
+    adminChange(value){
+      this.userInfo.role = value
+    },
+
+    // Edit User
+    async editUser(id) {
+      this.editUserVisible = true
+      const {data: res} = await this.$http.get(`user/${id}`)
+      this.userInfo = res.data
+      this.userInfo.id = id
+    },
+    editUserCancel(){
+      this.$refs.addUserRef.resetFields()
+      this.editUserVisible = false
+      this.$message.info("Edit Cancel")
+    },
+    editUserOk(){
+      this.$refs.addUserRef.validate(async (valid) => {
+        if(!valid) return this.$message.error("Invalid")
+        const {data: res} = await this.$http.put(`user/${this.userInfo.id}`, {
+          username: this.userInfo.username,
+          role: this.userInfo.role
+        })
+        console.log(res)
+        if (res.status !=200) return this.$message.error(res.message)
+        this.editUserVisible = false
+        this.$message.success("Edit User Success")
+        this.getUserList()
+      })
+
     }
   },
 }

@@ -13,7 +13,8 @@ import {
   Col,
   ConfigProvider,
   Modal,
-  Menu
+  Menu,
+  Select
 } from 'ant-design-vue'
 
 message.config({
@@ -22,6 +23,7 @@ message.config({
   macCount: 3
 })
 
+Vue.use(Select)
 Vue.use(Menu)
 Vue.use(Modal)
 Vue.use(ConfigProvider)
