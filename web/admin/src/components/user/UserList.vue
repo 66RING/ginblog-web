@@ -25,14 +25,15 @@
         bordered
         @change="handleTableChange"
         >
-          <span slot='role' slot-scope="role">{{role == 1?'管理员':'订阅者'}}</span>
-          <template slot="action" slot-scope="data">
-            <div class="actionSlot">
-              <a-button type="primary" style="margin-right:15px" @click="editUser(data.ID)">Edit</a-button>
-              <a-button type="danger" @click="deleteUser(data.ID)">Delete</a-button>
-            </div>
-          </template>
-        </a-table>
+        <span slot='role' slot-scope="role">{{role == 1?'管理员':'订阅者'}}</span>
+        <template slot="action" slot-scope="data">
+          <div class="actionSlot">
+            <a-button type="primary" style="margin-right:15px" @click="editUser(data.ID)">Edit</a-button>
+            <a-button type="danger" style="margin-right:15px" @click="deleteUser(data.ID)">Delete</a-button>
+            <a-button type="info" @click="deleteUser(data.ID)">Reset</a-button>
+          </div>
+        </template>
+      </a-table>
     </a-card>
 
     <!-- New User -->
@@ -45,21 +46,15 @@
       closable
       destroyOnClose
     >
-      <a-form-model :model="userInfo" :rules="userRules" ref="addUserRef">
+      <a-form-model :model="newUser" :rules="addUserRules" ref="addUserRef">
         <a-form-model-item label="User Name" prop="username">
-          <a-input v-model="userInfo.username"></a-input>
+          <a-input v-model="newUser.username"></a-input>
         </a-form-model-item>
         <a-form-model-item has-feedback label="Password" prop="password">
-          <a-input-password v-model="userInfo.password"></a-input-password>
+          <a-input-password v-model="newUser.password"></a-input-password>
         </a-form-model-item>
         <a-form-model-item has-feedback label="Confirm Password" prop="checkpass">
-          <a-input-password v-model="userInfo.checkpass"></a-input-password>
-        </a-form-model-item>
-        <a-form-model-item label="Is Administor?" prop="role">
-          <a-select defaultValue="2" style="120px" @change="adminChange">
-            <a-select-option key="1" value="1">Yes</a-select-option>
-            <a-select-option key="2" value="2">No</a-select-option>
-          </a-select>
+          <a-input-password v-model="newUser.checkpass"></a-input-password>
         </a-form-model-item>
       </a-form-model>
     </a-modal>
@@ -78,10 +73,7 @@
           <a-input v-model="userInfo.username"></a-input>
         </a-form-model-item>
         <a-form-model-item label="Is Administor?" prop="role">
-          <a-select defaultValue="2" style="120px" @change="adminChange">
-            <a-select-option key="1" value="1">Yes</a-select-option>
-            <a-select-option key="2" value="2">No</a-select-option>
-          </a-select>
+          <a-switch :checked="userInfo.role == 1" @change="adminChange"/>
         </a-form-model-item>
       </a-form-model>
     </a-modal>
@@ -148,6 +140,13 @@ export default{
         checkpass: "",
         role: 2
       },
+      newUser: {
+        id: 0,
+        username: "",
+        password: "",
+        checkpass: "",
+        role: 2
+      },
       visible: false,
       addUserVisible: false,
       userRules: {
@@ -170,6 +169,32 @@ export default{
             callback(new Error("Password can't be empty"))
           }
           if(this.userInfo.password != this.userInfo.checkpass){
+            callback(new Error("Inconsistent password"))
+          }else{
+            callback()
+          }
+        },trigger: "blur"}]
+      },
+      addUserRules: {
+        username: [
+          {required:true, message: "Please input username", trigger: "blur"},
+          {min:4, max: 12, message: "UserName should between 4 and 12"},
+        ],
+        password: [{validator:(rule, value, callback)=>{
+          if (this.newUser.password == ""){
+            callback(new Error("Password can't be empty"))
+          }
+          if([...this.newUser.password].length < 6 || [...this.newUser.password].length > 20){
+            callback(new Error("Password must be between 6 and 20"))
+          }else{
+            callback()
+          }
+        },trigger: "blur"}],
+        checkpass: [{ validator: (rule, value, callback) => {
+          if (this.newUser.checkpass == ""){
+            callback(new Error("Password can't be empty"))
+          }
+          if(this.newUser.password != this.newUser.checkpass){
             callback(new Error("Inconsistent password"))
           }else{
             callback()
@@ -240,9 +265,9 @@ export default{
       this.$refs.addUserRef.validate(async (valid) => {
         if(!valid) return this.$message.error("Invalid")
         const {data: res} = await this.$http.post("user/add", {
-          username: this.userInfo.username,
-          password: this.userInfo.password,
-          role: this.userInfo.role
+          username: this.newUser.username,
+          password: this.newUser.password,
+          role: this.newUser.role
         })
         if (res.status !=200) return this.$message.error(res.message)
         this.addUserVisible = false
@@ -250,8 +275,12 @@ export default{
         this.getUserList()
       })
     },
-    adminChange(value){
-      this.userInfo.role = value
+    adminChange(checked){
+      if(checked){
+        this.userInfo.role = 1
+      }else{
+        this.userInfo.role = 2
+      }
     },
 
     // Edit User

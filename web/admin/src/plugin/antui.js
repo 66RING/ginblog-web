@@ -14,6 +14,7 @@ import {
   ConfigProvider,
   Modal,
   Menu,
+  Switch,
   Select
 } from 'ant-design-vue'
 
@@ -25,6 +26,7 @@ message.config({
 
 Vue.use(Select)
 Vue.use(Menu)
+Vue.use(Switch)
 Vue.use(Modal)
 Vue.use(ConfigProvider)
 Vue.use(Card)
