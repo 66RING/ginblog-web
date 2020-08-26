@@ -15,6 +15,7 @@ import {
   Modal,
   Menu,
   Switch,
+  Upload,
   Select
 } from 'ant-design-vue'
 
@@ -26,6 +27,7 @@ message.config({
 
 Vue.use(Select)
 Vue.use(Menu)
+Vue.use(Upload)
 Vue.use(Switch)
 Vue.use(Modal)
 Vue.use(ConfigProvider)

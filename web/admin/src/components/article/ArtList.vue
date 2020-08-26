@@ -13,7 +13,7 @@
           />
         </a-col>
         <a-col :span="4">
-          <a-button type="primary" @click="addArtVisible = true" @ok="addArtOk" @cancel="addArtCancel">New Art</a-button>
+          <a-button type="primary" @click="$router.push('/admin/addart')">New Art</a-button>
         </a-col>
 
         <a-col :span="6" :offset="4">
@@ -40,8 +40,18 @@
         </span>
         <template slot="action" slot-scope="data">
           <div class="actionSlot">
-            <a-button type="primary" size="small" style="margin-right:15px" @click="editArt(data.ID)">Edit</a-button>
-            <a-button type="danger" size="small" style="margin-right:15px" @click="deleteArt(data.ID)">Delete</a-button>
+            <a-button 
+              type="primary" 
+              size="small" 
+              style="margin-right:15px" 
+              @click="$router.push(`/admin/addart/${data.ID}`)"
+              >Edit</a-button>
+            <a-button 
+              type="danger" 
+              size="small" 
+              style="margin-right:15px" 
+              @click="deleteArt(data.ID)"
+              >Delete</a-button>
           </div>
         </template>
       </a-table>
