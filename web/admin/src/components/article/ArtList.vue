@@ -13,7 +13,7 @@
           />
         </a-col>
         <a-col :span="4">
-          <a-button type="primary" @click="$router.push('/admin/addart')">New Art</a-button>
+          <a-button type="primary" @click="$router.push('/addart')">New Art</a-button>
         </a-col>
 
         <a-col :span="6" :offset="4">
@@ -44,7 +44,7 @@
               type="primary" 
               size="small" 
               style="margin-right:15px" 
-              @click="$router.push(`/admin/addart/${data.ID}`)"
+              @click="$router.push(`/addart/${data.ID}`)"
               >Edit</a-button>
             <a-button 
               type="danger" 

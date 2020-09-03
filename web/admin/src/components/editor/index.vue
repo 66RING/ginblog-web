@@ -43,7 +43,9 @@ export default{
           formdata.append('file', blobInfo.blob() ,blobInfo.name())
           const {data: res} = await this.$http.post('upload', formdata)
           succFun(res.url)
-        }
+        },
+        imagetools_cors_hosts: ['*'],
+        imagetools_proxy: "*",
       },
       content: this.value,
     }
